@@ -6,6 +6,10 @@
 <title>Ты — инженер КТУ?</title>
 
 <style>
+:root {
+  --itmo-blue: #0039A6;
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -23,8 +27,8 @@ body {
   display: block;
 }
 
-h1, h2 {
-  margin-bottom: 10px;
+h1 {
+  color: var(--itmo-blue);
 }
 
 button {
@@ -33,18 +37,50 @@ button {
   padding: 15px;
   margin: 10px auto;
   font-size: 16px;
-  border: 2px solid #000;
+  border: 2px solid var(--itmo-blue);
   background: #fff;
+  color: var(--itmo-blue);
   cursor: pointer;
 }
 
 button:active {
-  background: #000;
+  background: var(--itmo-blue);
   color: #fff;
 }
 
 .progress {
-  margin: 10px 0;
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+svg {
+  width: 100%;
+  max-width: 320px;
+  margin: 20px auto;
+}
+
+.path {
+  stroke: #999;
+  stroke-width: 6;
+  fill: none;
+}
+
+.path.correct {
+  stroke: var(--itmo-blue);
+}
+
+table {
+  width: 100%;
+  max-width: 320px;
+  margin: 10px auto;
+  border-collapse: collapse;
+}
+
+td, th {
+  border: 1px solid #ccc;
+  padding: 6px;
+  font-size: 14px;
 }
 </style>
 </head>
@@ -54,8 +90,8 @@ button:active {
 <!-- Старт -->
 <div class="screen active" id="start">
   <h1>Ты — инженер КТУ?</h1>
-  <p>Мегафакультет Компьютерных технологий и управления</p>
-  <button onclick="next()">Начать</button>
+  <p><b>Мегафакультет Компьютерных технологий и управления</b></p>
+  <button onclick="startGame()">Начать</button>
 </div>
 
 <!-- Задача 1 -->
@@ -64,9 +100,17 @@ button:active {
   <h2>🧭 Найди оптимальный путь</h2>
   <p>Какой маршрут самый короткий?</p>
 
-  <button onclick="answer(true)">Маршрут A</button>
-  <button onclick="answer(false)">Маршрут B</button>
-  <button onclick="answer(false)">Маршрут C</button>
+  <svg viewBox="0 0 200 200">
+    <circle cx="30" cy="170" r="10" fill="black"/>
+    <text x="10" y="190" font-size="12">🤖</text>
+
+    <circle cx="170" cy="30" r="10" fill="black"/>
+    <text x="155" y="20" font-size="12">🧪</text>
+
+    <path d="M30 170 L170 30" class="path correct" onclick="answer(true,this)"/>
+    <path d="M30 170 L30 30 L170 30" class="path" onclick="answer(false,this)"/>
+    <path d="M30 170 L170 170 L170 30" class="path" onclick="answer(false,this)"/>
+  </svg>
 </div>
 
 <!-- Задача 2 -->
@@ -95,27 +139,45 @@ button:active {
 <div class="screen" id="finish">
   <h1 id="resultTitle"></h1>
   <p id="resultText"></p>
-  <p><strong>Факультет систем управления и робототехники</strong></p>
+
+  <h3>🏆 Таблица рекордов</h3>
+  <table id="scores"></table>
+
+  <p style="margin-top:10px;font-size:14px;">
+    Прошли интерактив: <span id="analytics"></span>
+  </p>
 </div>
 
 <script>
 let step = 0;
 let score = 0;
-const screens = ["start", "q1", "q2", "q3", "finish"];
+let completed = Number(localStorage.getItem("completed") || 0);
 
-function next() {
+const screens = ["start","q1","q2","q3","finish"];
+
+function startGame() {
+  show(1);
+}
+
+function show(n) {
   document.getElementById(screens[step]).classList.remove("active");
-  step++;
+  step = n;
   document.getElementById(screens[step]).classList.add("active");
 }
 
-function answer(correct) {
+function answer(correct, el) {
+  if (el) el.classList.add("correct");
   if (correct) score++;
-  next();
-  if (step === 4) showResult();
+  setTimeout(() => {
+    if (step < 4) show(step + 1);
+    if (step === 3) finish();
+  }, 400);
 }
 
-function showResult() {
+function finish() {
+  completed++;
+  localStorage.setItem("completed", completed);
+
   const title = document.getElementById("resultTitle");
   const text = document.getElementById("resultText");
 
@@ -129,6 +191,26 @@ function showResult() {
     title.innerText = "👋 Добро пожаловать!";
     text.innerText = "Всему научим на КТУ.";
   }
+
+  saveScore();
+  showScores();
+  document.getElementById("analytics").innerText = completed;
+}
+
+function saveScore() {
+  let list = JSON.parse(localStorage.getItem("scores") || "[]");
+  list.push({score, date: new Date().toLocaleDateString()});
+  list = list.slice(-5);
+  localStorage.setItem("scores", JSON.stringify(list));
+}
+
+function showScores() {
+  const table = document.getElementById("scores");
+  const list = JSON.parse(localStorage.getItem("scores") || "[]");
+  table.innerHTML = "<tr><th>Баллы</th><th>Дата</th></tr>";
+  list.reverse().forEach(r => {
+    table.innerHTML += `<tr><td>${r.score}/3</td><td>${r.date}</td></tr>`;
+  });
 }
 </script>
 
