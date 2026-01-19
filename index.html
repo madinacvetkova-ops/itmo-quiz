@@ -3,30 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Инженер КТУ — Advanced</title>
+<title>Инженер КТУ — ITMO</title>
 
 <style>
 :root { --itmo-blue:#0039A6; }
 
 body {
-  margin:0; font-family:Arial,sans-serif;
-  background:#fff; color:#000; text-align:center;
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#fff;
+  color:#000;
 }
 
-section {
-  padding:20px;
-  border-bottom:2px solid #eee;
+.wrapper {
+  max-width:1200px;
+  margin:auto;
+  text-align:center;
 }
 
-h1,h2 { color:var(--itmo-blue); }
+.screen { display:none; padding:20px; }
+.active { display:block; }
+
+h1,h2,h3 { color:var(--itmo-blue); }
 
 button {
-  padding:10px 14px;
-  margin:6px;
+  padding:12px 18px;
+  margin:8px;
   border:2px solid var(--itmo-blue);
   background:#fff;
   color:var(--itmo-blue);
-  font-size:14px;
+  font-size:16px;
 }
 
 button:active {
@@ -43,162 +49,188 @@ canvas {
 </head>
 
 <body>
+<div class="wrapper">
 
-<h1>🔬 Инженер КТУ — Advanced</h1>
-<p>Мегафакультет Компьютерных технологий и управления</p>
+<!-- START -->
+<div class="screen active" id="start">
+<h1>Ты — инженер КТУ?</h1>
+<p><b>Мегафакультет Компьютерных технологий и управления</b></p>
+<p>Факультет систем управления и робототехники</p>
+<button onclick="next()">Начать</button>
+</div>
 
-<!-- =================== ЗАДАЧА 1 =================== -->
-<section>
-<h2>🧭 Алгоритмы поиска пути</h2>
-<p>
-🤖 → 🧪 на сеточной карте.<br>
-Посмотри, как работают разные алгоритмы.
-</p>
+<!-- BASIC END -->
+<div class="screen" id="basicEnd">
+<h2>🎓 Ты прошёл базовый уровень!</h2>
+<p>Хочешь увидеть, как выглядят реальные инженерные задачи?</p>
+<button onclick="enterAdvanced()">🔥 Advanced-уровень</button>
+</div>
 
-<canvas id="grid" width="240" height="240"></canvas><br>
+<!-- ADVANCED 1 -->
+<div class="screen" id="adv1">
+<h2>🧭 BFS vs A*</h2>
+<p>Сравни алгоритмы поиска пути</p>
+<canvas id="grid" width="360" height="360"></canvas>
+<button onclick="runBFS()">BFS</button>
+<button onclick="runAStar()">A*</button>
+<button onclick="next()">Далее</button>
+</div>
 
-<button onclick="runBFS()">Показать BFS</button>
-<button onclick="runAStar()">Показать A*</button>
-
-<p><b>Какой алгоритм быстрее?</b></p>
-</section>
-
-<!-- =================== ЗАДАЧА 2 =================== -->
-<section>
+<!-- ADVANCED 2 -->
+<div class="screen" id="adv2">
 <h2>📡 Фильтрация сигнала</h2>
-<p>Сенсор передаёт сигнал с шумом.</p>
-
-<canvas id="signal" width="300" height="150"></canvas><br>
-
+<canvas id="signal" width="600" height="250"></canvas>
 <button onclick="drawRaw()">Без фильтра</button>
 <button onclick="drawAverage()">Скользящее среднее</button>
-<button onclick="drawMedian()">Медианный фильтр</button>
+<button onclick="drawMedian()">Медианный</button>
+<button onclick="next()">Далее</button>
+</div>
 
-<p><b>Какой метод лучше сглаживает шум?</b></p>
-</section>
+<!-- ADVANCED 3 -->
+<div class="screen" id="adv3">
+<h2>🧠 PID-регулятор</h2>
+<p>Выбери коэффициенты и посмотри на поведение системы</p>
+<canvas id="pid" width="600" height="250"></canvas>
+<button onclick="runPID(0.2)">Плохие</button>
+<button onclick="runPID(0.6)">Средние</button>
+<button onclick="runPID(1.2)">Стабильные</button>
+<button onclick="finishAdvanced()">Завершить</button>
+</div>
+
+<!-- FINAL -->
+<div class="screen" id="finish">
+<h1>🔥 Ты видел, как учатся инженеры КТУ</h1>
+<p id="stats"></p>
+</div>
+
+</div>
 
 <script>
-/* ---------- ЗАДАЧА 1: BFS vs A* ---------- */
-const g = document.getElementById("grid").getContext("2d");
-const size = 8;
-const cell = 30;
-
-const start = {x:0,y:7};
-const goal = {x:7,y:0};
-
-const walls = [
-  {x:3,y:1},{x:3,y:2},{x:3,y:3},
-  {x:5,y:4},{x:6,y:4}
+let step=0;
+const screens=[
+"start","basicEnd","adv1","adv2","adv3","finish"
 ];
 
-function drawGrid(visited=[]) {
-  g.clearRect(0,0,240,240);
-  for(let y=0;y<size;y++){
-    for(let x=0;x<size;x++){
-      g.strokeRect(x*cell,y*cell,cell,cell);
-    }
-  }
-  walls.forEach(w=>{
-    g.fillRect(w.x*cell,w.y*cell,cell,cell);
-  });
-  visited.forEach(v=>{
-    g.fillStyle="#99b";
-    g.fillRect(v.x*cell,v.y*cell,cell,cell);
-  });
-  g.fillStyle="green";
-  g.fillRect(start.x*cell,start.y*cell,cell,cell);
-  g.fillStyle="red";
-  g.fillRect(goal.x*cell,goal.y*cell,cell,cell);
+let analytics={
+basic:Number(localStorage.getItem("basic")||0),
+advanced:Number(localStorage.getItem("advanced")||0),
+advancedEnd:Number(localStorage.getItem("advancedEnd")||0)
+};
+
+function next(){
+show(step+1);
 }
 
+function show(n){
+document.getElementById(screens[step]).classList.remove("active");
+step=n;
+document.getElementById(screens[step]).classList.add("active");
+}
+
+analytics.basic++;
+localStorage.setItem("basic",analytics.basic);
+
+function enterAdvanced(){
+analytics.advanced++;
+localStorage.setItem("advanced",analytics.advanced);
+next();
+}
+
+/* ===== BFS / A* ===== */
+const g=document.getElementById("grid").getContext("2d");
+const size=10, cell=36;
+const start={x:0,y:9}, goal={x:9,y:0};
+function drawGrid(v=[]){
+g.clearRect(0,0,360,360);
+for(let y=0;y<size;y++)
+for(let x=0;x<size;x++)
+g.strokeRect(x*cell,y*cell,cell,cell);
+v.forEach(p=>{
+g.fillStyle="#aac";
+g.fillRect(p.x*cell,p.y*cell,cell,cell);
+});
+g.fillStyle="green";
+g.fillRect(start.x*cell,start.y*cell,cell,cell);
+g.fillStyle="red";
+g.fillRect(goal.x*cell,goal.y*cell,cell,cell);
+}
 function runBFS(){
-  let visited=[];
-  let q=[start];
-  let seen={};
-  let i=0;
-  let t=setInterval(()=>{
-    if(!q.length){clearInterval(t);return;}
-    let v=q.shift();
-    visited.push(v);
-    drawGrid(visited);
-    i++;
-    [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
-      let nx=v.x+d[0], ny=v.y+d[1];
-      let k=nx+","+ny;
-      if(nx>=0&&ny>=0&&nx<size&&ny<size&&!seen[k]
-         && !walls.find(w=>w.x===nx&&w.y===ny)){
-        seen[k]=1; q.push({x:nx,y:ny});
-      }
-    });
-  },120);
+let q=[start], seen={}, v=[];
+let t=setInterval(()=>{
+if(!q.length){clearInterval(t);return;}
+let p=q.shift(); v.push(p); drawGrid(v);
+[[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
+let nx=p.x+d[0], ny=p.y+d[1], k=nx+","+ny;
+if(nx>=0&&ny>=0&&nx<size&&ny<size&&!seen[k]){
+seen[k]=1; q.push({x:nx,y:ny});
+}});
+},80);
 }
-
 function runAStar(){
-  let visited=[];
-  let open=[start];
-  let seen={};
-  let t=setInterval(()=>{
-    if(!open.length){clearInterval(t);return;}
-    open.sort((a,b)=>
-      (Math.abs(a.x-goal.x)+Math.abs(a.y-goal.y))-
-      (Math.abs(b.x-goal.x)+Math.abs(b.y-goal.y))
-    );
-    let v=open.shift();
-    visited.push(v);
-    drawGrid(visited);
-    [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
-      let nx=v.x+d[0], ny=v.y+d[1];
-      let k=nx+","+ny;
-      if(nx>=0&&ny>=0&&nx<size&&ny<size&&!seen[k]
-         && !walls.find(w=>w.x===nx&&w.y===ny)){
-        seen[k]=1; open.push({x:nx,y:ny});
-      }
-    });
-  },120);
+let open=[start], v=[], seen={};
+let t=setInterval(()=>{
+if(!open.length){clearInterval(t);return;}
+open.sort((a,b)=>Math.abs(a.x-goal.x)+Math.abs(a.y-goal.y)-
+Math.abs(b.x-goal.x)-Math.abs(b.y-goal.y));
+let p=open.shift(); v.push(p); drawGrid(v);
+[[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
+let nx=p.x+d[0], ny=p.y+d[1], k=nx+","+ny;
+if(nx>=0&&ny>=0&&nx<size&&ny<size&&!seen[k]){
+seen[k]=1; open.push({x:nx,y:ny});
+}});
+},80);
 }
-
 drawGrid();
 
-/* ---------- ЗАДАЧА 2: ФИЛЬТРАЦИЯ ---------- */
-const c = document.getElementById("signal").getContext("2d");
-let raw = Array.from({length:50},
-  (_,i)=>50+20*Math.sin(i/5)+Math.random()*30);
-
+/* ===== SIGNAL ===== */
+const s=document.getElementById("signal").getContext("2d");
+let raw=Array.from({length:100},(_,i)=>120+40*Math.sin(i/10)+Math.random()*40);
 function draw(data){
-  c.clearRect(0,0,300,150);
-  c.beginPath();
-  data.forEach((v,i)=>{
-    c.lineTo(i*6,150-v);
-  });
-  c.stroke();
+s.clearRect(0,0,600,250);
+s.beginPath();
+data.forEach((v,i)=>s.lineTo(i*6,250-v));
+s.stroke();
 }
-
-function drawRaw(){ draw(raw); }
-
+function drawRaw(){draw(raw);}
 function drawAverage(){
-  let f = raw.map((_,i)=>{
-    let s=0,cnt=0;
-    for(let j=-2;j<=2;j++){
-      if(raw[i+j]){s+=raw[i+j];cnt++;}
-    }
-    return s/cnt;
-  });
-  draw(f);
+draw(raw.map((_,i)=>{
+let a=raw.slice(Math.max(0,i-3),i+4);
+return a.reduce((x,y)=>x+y)/a.length;
+}));
 }
-
 function drawMedian(){
-  let f = raw.map((_,i)=>{
-    let arr=[];
-    for(let j=-2;j<=2;j++){
-      if(raw[i+j]) arr.push(raw[i+j]);
-    }
-    arr.sort((a,b)=>a-b);
-    return arr[Math.floor(arr.length/2)];
-  });
-  draw(f);
+draw(raw.map((_,i)=>{
+let a=raw.slice(Math.max(0,i-3),i+4).sort((a,b)=>a-b);
+return a[Math.floor(a.length/2)];
+}));
+}
+drawRaw();
+
+/* ===== PID ===== */
+const p=document.getElementById("pid").getContext("2d");
+function runPID(k){
+let y=125, target=125, v=[];
+let t=setInterval(()=>{
+let err=target-y;
+y+=err*k;
+v.push(y);
+p.clearRect(0,0,600,250);
+p.beginPath();
+v.forEach((val,i)=>p.lineTo(i*6,250-val));
+p.stroke();
+if(v.length>100) clearInterval(t);
+},50);
 }
 
-drawRaw();
+function finishAdvanced(){
+analytics.advancedEnd++;
+localStorage.setItem("advancedEnd",analytics.advancedEnd);
+document.getElementById("stats").innerText=
+`Прошли базу: ${analytics.basic}
+Зашли в Advanced: ${analytics.advanced}
+Прошли Advanced: ${analytics.advancedEnd}`;
+show(5);
+}
 </script>
 
 </body>
