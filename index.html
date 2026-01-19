@@ -190,7 +190,30 @@ function startPID(){
     if(data.length>100) clearInterval(t);
   },50);
 }
+/* ===== SIGNAL ===== */
+const s=document.getElementById("signal").getContext("2d");
+let raw=Array.from({length:100},(_,i)=>120+30*Math.sin(i/8)+Math.random()*40);
 
+function drawSig(data){
+  s.clearRect(0,0,600,220);
+  s.beginPath();
+  data.forEach((v,i)=>s.lineTo(i*6,220-v));
+  s.stroke();
+}
+function rawSignal(){ drawSig(raw); }
+function avgSignal(){
+  drawSig(raw.map((_,i)=>{
+    let a=raw.slice(Math.max(0,i-3),i+4);
+    return a.reduce((x,y)=>x+y)/a.length;
+  }));
+}
+function medSignal(){
+  drawSig(raw.map((_,i)=>{
+    let a=raw.slice(Math.max(0,i-3),i+4).sort((a,b)=>a-b);
+    return a[Math.floor(a.length/2)];
+  }));
+}
+rawSignal();
 /* ===== ПОДСКАЗКА ===== */
 function toggleHint(){
   const h=document.getElementById("hint");
