@@ -102,34 +102,39 @@ td, th {
   <h2>🧭 Найди оптимальный путь</h2>
 
   <p>
-    Робот 🤖 движется по кампусу ИТМО к лаборатории 🧪.<br>
+    Робот 🤖 едет по кампусу ИТМО к лаборатории 🧪.<br>
     <b>Нажми на самый короткий маршрут.</b>
   </p>
 
   <svg viewBox="0 0 200 200">
-    <text x="10" y="185">🤖</text>
+    <!-- старт и цель -->
+    <text x="5" y="190">🤖</text>
     <text x="155" y="20">🧪</text>
 
-    <!-- A -->
-    <path d="M30 170 L170 30" class="path"
+    <!-- Маршрут A (правильный) -->
+    <path d="M30 170 L170 30"
+          class="path"
           onclick="answer(true,this)"/>
-    <text x="90" y="90">A</text>
+    <text x="90" y="90" font-size="12">A</text>
 
-    <!-- B -->
-    <path d="M30 170 L30 30 L170 30" class="path"
+    <!-- Маршрут B -->
+    <path d="M30 170 L30 30 L170 30"
+          class="path"
           onclick="answer(false,this)"/>
-    <text x="20" y="80">B</text>
+    <text x="20" y="80" font-size="12">B</text>
 
-    <!-- C -->
-    <path d="M30 170 L170 170 L170 30" class="path"
+    <!-- Маршрут C -->
+    <path d="M30 170 L170 170 L170 30"
+          class="path"
           onclick="answer(false,this)"/>
-    <text x="90" y="165">C</text>
+    <text x="90" y="165" font-size="12">C</text>
   </svg>
 
   <p style="font-size:14px;color:#555;">
-    Каждый маршрут — вариант ответа
+    Каждый маршрут — это вариант ответа
   </p>
 </div>
+
 
 <!-- ЗАДАЧА 2 -->
 <div class="screen" id="q2">
