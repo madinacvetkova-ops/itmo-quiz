@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ты — инженер КТУ?</title>
+<title>Инженер КТУ — Advanced</title>
 
 <style>
 :root { --itmo-blue:#0039A6; }
@@ -13,182 +13,192 @@ body {
   background:#fff; color:#000; text-align:center;
 }
 
-.screen { display:none; padding:20px; }
-.active { display:block; }
+section {
+  padding:20px;
+  border-bottom:2px solid #eee;
+}
 
 h1,h2 { color:var(--itmo-blue); }
 
 button {
-  width:100%; max-width:320px;
-  padding:14px; margin:8px auto;
-  font-size:16px;
+  padding:10px 14px;
+  margin:6px;
   border:2px solid var(--itmo-blue);
-  background:#fff; color:var(--itmo-blue);
+  background:#fff;
+  color:var(--itmo-blue);
+  font-size:14px;
 }
 
-button:active { background:var(--itmo-blue); color:#fff; }
-
-.progress { font-size:14px; color:#555; margin-bottom:10px; }
-
-svg { width:100%; max-width:320px; margin:15px auto; }
-
-.path { stroke:#999; stroke-width:6; fill:none; cursor:pointer; }
-.path:hover { stroke:var(--itmo-blue); }
-
-table {
-  width:100%; max-width:320px;
-  margin:10px auto; border-collapse:collapse;
+button:active {
+  background:var(--itmo-blue);
+  color:#fff;
 }
 
-td,th { border:1px solid #ccc; padding:6px; font-size:14px; }
+canvas {
+  border:1px solid #ccc;
+  margin:10px auto;
+  display:block;
+}
 </style>
 </head>
 
 <body>
 
-<!-- START -->
-<div class="screen active" id="start">
-  <h1>Ты — инженер КТУ?</h1>
-  <p><b>Мегафакультет Компьютерных технологий и управления</b></p>
-  <p>Факультет систем управления и робототехники</p>
-  <button onclick="next()">Начать</button>
-</div>
+<h1>🔬 Инженер КТУ — Advanced</h1>
+<p>Мегафакультет Компьютерных технологий и управления</p>
 
-<!-- Q1 -->
-<div class="screen" id="q1">
-<div class="progress">Задача 1 из 5</div>
-<h2>🧭 Найди оптимальный путь</h2>
-<p><b>Нажми на самый короткий маршрут.</b></p>
-
-<svg viewBox="0 0 200 200">
-<text x="10" y="185">🤖</text>
-<text x="155" y="20">🧪</text>
-
-<path d="M30 170 L170 30" class="path" onclick="answer(true,this)"/>
-<text x="90" y="90">A</text>
-
-<path d="M30 170 L30 30 L170 30" class="path" onclick="answer(false,this)"/>
-<text x="20" y="80">B</text>
-
-<path d="M30 170 L170 170 L170 30" class="path" onclick="answer(false,this)"/>
-<text x="90" y="165">C</text>
-</svg>
-</div>
-
-<!-- Q2 -->
-<div class="screen" id="q2">
-<div class="progress">Задача 2 из 5</div>
-<h2>🧠 Умный сенсор</h2>
-<p>Если препятствие ближе 30 см — робот должен остановиться.</p>
-<button onclick="answer(false)">расстояние &gt; 30 см</button>
-<button onclick="answer(true)">расстояние &lt; 30 см</button>
-<button onclick="answer(false)">расстояние = 100 см</button>
-</div>
-
-<!-- Q3 -->
-<div class="screen" id="q3">
-<div class="progress">Задача 3 из 5</div>
-<h2>🤖 Человек или алгоритм?</h2>
-<p>Кто эффективнее распределит 200 студентов по аудиториям?</p>
-<button onclick="answer(false)">Человек</button>
-<button onclick="answer(true)">Алгоритм оптимизации</button>
-<button onclick="answer(false)">Случайно</button>
-</div>
-
-<!-- Q4 -->
-<div class="screen" id="q4">
-<div class="progress">Задача 4 из 5</div>
-<h2>🧮 Логика управления</h2>
-<p>Если температура мотора &gt; 80 °C — робот снижает скорость.</p>
-<p><b>При каком значении он снизит скорость?</b></p>
-<button onclick="answer(false)">75 °C</button>
-<button onclick="answer(true)">85 °C</button>
-<button onclick="answer(false)">60 °C</button>
-</div>
-
-<!-- Q5 -->
-<div class="screen" id="q5">
-<div class="progress">Задача 5 из 5</div>
-<h2>📡 Сигнал и шум</h2>
-<p>Как сгладить шум сенсора без искажения сигнала?</p>
-<button onclick="answer(true)">Скользящее среднее</button>
-<button onclick="answer(false)">Случайный шум</button>
-<button onclick="answer(false)">Усиление сигнала</button>
-</div>
-
-<!-- FINISH -->
-<div class="screen" id="finish">
-<h1 id="resultTitle"></h1>
-<p id="resultText"></p>
-
-<h3>🏆 Таблица рекордов</h3>
-<table id="scores"></table>
-
-<p style="font-size:14px;">
-Прошли интерактив: <span id="analytics"></span>
+<!-- =================== ЗАДАЧА 1 =================== -->
+<section>
+<h2>🧭 Алгоритмы поиска пути</h2>
+<p>
+🤖 → 🧪 на сеточной карте.<br>
+Посмотри, как работают разные алгоритмы.
 </p>
-</div>
+
+<canvas id="grid" width="240" height="240"></canvas><br>
+
+<button onclick="runBFS()">Показать BFS</button>
+<button onclick="runAStar()">Показать A*</button>
+
+<p><b>Какой алгоритм быстрее?</b></p>
+</section>
+
+<!-- =================== ЗАДАЧА 2 =================== -->
+<section>
+<h2>📡 Фильтрация сигнала</h2>
+<p>Сенсор передаёт сигнал с шумом.</p>
+
+<canvas id="signal" width="300" height="150"></canvas><br>
+
+<button onclick="drawRaw()">Без фильтра</button>
+<button onclick="drawAverage()">Скользящее среднее</button>
+<button onclick="drawMedian()">Медианный фильтр</button>
+
+<p><b>Какой метод лучше сглаживает шум?</b></p>
+</section>
 
 <script>
-let step=0, score=0;
-let completed=Number(localStorage.getItem("completed")||0);
-const screens=["start","q1","q2","q3","q4","q5","finish"];
+/* ---------- ЗАДАЧА 1: BFS vs A* ---------- */
+const g = document.getElementById("grid").getContext("2d");
+const size = 8;
+const cell = 30;
 
-function next(){ show(step+1); }
+const start = {x:0,y:7};
+const goal = {x:7,y:0};
 
-function show(n){
-document.getElementById(screens[step]).classList.remove("active");
-step=n;
-document.getElementById(screens[step]).classList.add("active");
+const walls = [
+  {x:3,y:1},{x:3,y:2},{x:3,y:3},
+  {x:5,y:4},{x:6,y:4}
+];
+
+function drawGrid(visited=[]) {
+  g.clearRect(0,0,240,240);
+  for(let y=0;y<size;y++){
+    for(let x=0;x<size;x++){
+      g.strokeRect(x*cell,y*cell,cell,cell);
+    }
+  }
+  walls.forEach(w=>{
+    g.fillRect(w.x*cell,w.y*cell,cell,cell);
+  });
+  visited.forEach(v=>{
+    g.fillStyle="#99b";
+    g.fillRect(v.x*cell,v.y*cell,cell,cell);
+  });
+  g.fillStyle="green";
+  g.fillRect(start.x*cell,start.y*cell,cell,cell);
+  g.fillStyle="red";
+  g.fillRect(goal.x*cell,goal.y*cell,cell,cell);
 }
 
-function answer(correct,el){
-if(correct) score++;
-if(el) el.style.stroke="#0039A6";
-setTimeout(()=>{
-if(step<5) show(step+1);
-else finish();
-},400);
+function runBFS(){
+  let visited=[];
+  let q=[start];
+  let seen={};
+  let i=0;
+  let t=setInterval(()=>{
+    if(!q.length){clearInterval(t);return;}
+    let v=q.shift();
+    visited.push(v);
+    drawGrid(visited);
+    i++;
+    [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
+      let nx=v.x+d[0], ny=v.y+d[1];
+      let k=nx+","+ny;
+      if(nx>=0&&ny>=0&&nx<size&&ny<size&&!seen[k]
+         && !walls.find(w=>w.x===nx&&w.y===ny)){
+        seen[k]=1; q.push({x:nx,y:ny});
+      }
+    });
+  },120);
 }
 
-function finish(){
-completed++;
-localStorage.setItem("completed",completed);
-
-const title=document.getElementById("resultTitle");
-const text=document.getElementById("resultText");
-
-if(score>=4){
-title.innerText="🎓 Ты — студент КТУ!";
-text.innerText="Ты уверенно справился с инженерными задачами.";
-}else if(score>=2){
-title.innerText="🚀 Отличный потенциал!";
-text.innerText="Тебе точно к нам.";
-}else{
-title.innerText="👋 Добро пожаловать!";
-text.innerText="Всему научим на КТУ.";
+function runAStar(){
+  let visited=[];
+  let open=[start];
+  let seen={};
+  let t=setInterval(()=>{
+    if(!open.length){clearInterval(t);return;}
+    open.sort((a,b)=>
+      (Math.abs(a.x-goal.x)+Math.abs(a.y-goal.y))-
+      (Math.abs(b.x-goal.x)+Math.abs(b.y-goal.y))
+    );
+    let v=open.shift();
+    visited.push(v);
+    drawGrid(visited);
+    [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
+      let nx=v.x+d[0], ny=v.y+d[1];
+      let k=nx+","+ny;
+      if(nx>=0&&ny>=0&&nx<size&&ny<size&&!seen[k]
+         && !walls.find(w=>w.x===nx&&w.y===ny)){
+        seen[k]=1; open.push({x:nx,y:ny});
+      }
+    });
+  },120);
 }
 
-saveScore(); showScores();
-document.getElementById("analytics").innerText=completed;
-show(6);
+drawGrid();
+
+/* ---------- ЗАДАЧА 2: ФИЛЬТРАЦИЯ ---------- */
+const c = document.getElementById("signal").getContext("2d");
+let raw = Array.from({length:50},
+  (_,i)=>50+20*Math.sin(i/5)+Math.random()*30);
+
+function draw(data){
+  c.clearRect(0,0,300,150);
+  c.beginPath();
+  data.forEach((v,i)=>{
+    c.lineTo(i*6,150-v);
+  });
+  c.stroke();
 }
 
-function saveScore(){
-let list=JSON.parse(localStorage.getItem("scores")||"[]");
-list.push({score, date:new Date().toLocaleDateString()});
-list=list.slice(-5);
-localStorage.setItem("scores",JSON.stringify(list));
+function drawRaw(){ draw(raw); }
+
+function drawAverage(){
+  let f = raw.map((_,i)=>{
+    let s=0,cnt=0;
+    for(let j=-2;j<=2;j++){
+      if(raw[i+j]){s+=raw[i+j];cnt++;}
+    }
+    return s/cnt;
+  });
+  draw(f);
 }
 
-function showScores(){
-const table=document.getElementById("scores");
-const list=JSON.parse(localStorage.getItem("scores")||"[]");
-table.innerHTML="<tr><th>Баллы</th><th>Дата</th></tr>";
-list.reverse().forEach(r=>{
-table.innerHTML+=`<tr><td>${r.score}/5</td><td>${r.date}</td></tr>`;
-});
+function drawMedian(){
+  let f = raw.map((_,i)=>{
+    let arr=[];
+    for(let j=-2;j<=2;j++){
+      if(raw[i+j]) arr.push(raw[i+j]);
+    }
+    arr.sort((a,b)=>a-b);
+    return arr[Math.floor(arr.length/2)];
+  });
+  draw(f);
 }
+
+drawRaw();
 </script>
 
 </body>
