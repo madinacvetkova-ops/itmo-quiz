@@ -165,33 +165,74 @@ function drawGrid(v=[]){
 drawGrid();
 
 function runBFS(){
-  let q=[start], v=[], seen={};
+  let q=[start];
+  let visited=[];
+  let seen={};
+  let parent={};
+  seen[start.x+","+start.y]=true;
+
   let t=setInterval(()=>{
     if(!q.length){clearInterval(t);return;}
-    let p=q.shift(); v.push(p); drawGrid(v);
+
+    let v=q.shift();
+    visited.push(v);
+    drawGrid(visited);
+
+    if(v.x===goal.x && v.y===goal.y){
+      clearInterval(t);
+      drawPath(parent);
+      return;
+    }
+
     [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
-      let nx=p.x+d[0], ny=p.y+d[1], k=nx+","+ny;
-      if(nx>=0&&ny>=0&&nx<size&&ny<size&&!seen[k]){
-        seen[k]=1; q.push({x:nx,y:ny});
+      let nx=v.x+d[0], ny=v.y+d[1];
+      let key=nx+","+ny;
+      if(nx>=0&&ny>=0&&nx<size&&ny<size&&!seen[key]){
+        seen[key]=true;
+        parent[key]=v;
+        q.push({x:nx,y:ny});
       }
     });
   },100);
 }
 
 function runAStar(){
-  let open=[start], v=[], seen={};
+  let open=[start];
+  let visited=[];
+  let seen={};
+  let parent={};
+  seen[start.x+","+start.y]=true;
+
   let t=setInterval(()=>{
     if(!open.length){clearInterval(t);return;}
-    open.sort((a,b)=>Math.abs(a.x-goal.x)-Math.abs(b.x-goal.x));
-    let p=open.shift(); v.push(p); drawGrid(v);
+
+    open.sort((a,b)=>
+      Math.abs(a.x-goal.x)+Math.abs(a.y-goal.y) -
+      (Math.abs(b.x-goal.x)+Math.abs(b.y-goal.y))
+    );
+
+    let v=open.shift();
+    visited.push(v);
+    drawGrid(visited);
+
+    if(v.x===goal.x && v.y===goal.y){
+      clearInterval(t);
+      drawPath(parent);
+      return;
+    }
+
     [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
-      let nx=p.x+d[0], ny=p.y+d[1], k=nx+","+ny;
-      if(nx>=0&&ny>=0&&nx<size&&ny<size&&!seen[k]){
-        seen[k]=1; open.push({x:nx,y:ny});
+      let nx=v.x+d[0], ny=v.y+d[1];
+      let key=nx+","+ny;
+      if(nx>=0&&ny>=0&&nx<size&&ny<size&&!seen[key]){
+        seen[key]=true;
+        parent[key]=v;
+        open.push({x:nx,y:ny});
       }
     });
   },100);
 }
+
 
 /* ===== SIGNAL ===== */
 const s=document.getElementById("signal").getContext("2d");
