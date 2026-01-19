@@ -1,177 +1,127 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ИИ или Человек — Интерактив ИТМО</title>
-  <style>
-    :root {
-      --itmo-blue: #0033cc;
-      --itmo-light-blue: #4d7dff;
-      --itmo-accent: #00aaff;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Найди оптимальный путь</title>
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #e6ecff;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    #container {
-      max-width: 480px;
-      width: 100%;
-      background: white;
-      padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-      animation: fadeIn 0.6s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #fff;
+  color: #000;
+  text-align: center;
+  padding: 20px;
+}
 
-    #content img {
-      max-width: 100%;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      animation: fadeIn 0.4s ease;
-    }
+h1 {
+  font-size: 22px;
+}
 
-    button {
-      width: 100%;
-      padding: 14px;
-      font-size: 18px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      background: var(--itmo-blue);
-      color: white;
-      transition: 0.25s;
-    }
-    button:hover {
-      background: var(--itmo-light-blue);
-      transform: scale(1.02);
-    }
-    button:nth-child(3) {
-      background: #ff0266;
-    }
-    button:nth-child(3):hover {
-      background: #ff3c85;
-    }
+.map {
+  display: grid;
+  grid-template-columns: repeat(5, 50px);
+  grid-template-rows: repeat(5, 50px);
+  gap: 4px;
+  justify-content: center;
+  margin: 20px 0;
+}
 
-    #feedback {
-      text-align: center;
-      font-size: 20px;
-      margin-top: 15px;
-      min-height: 28px;
-      animation: fadeIn 0.3s ease;
-    }
-    #progressBarContainer {
-      width: 100%;
-      height: 12px;
-      background: #cce0ff;
-      border-radius: 6px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-    #progressBar {
-      width: 0%;
-      height: 100%;
-      background: var(--itmo-accent);
-      transition: width 0.3s;
-    }
-    table { border-collapse: collapse; color: #000; margin-top:10px; }
-    table, th, td { border: 1px solid #000; padding: 4px 8px; }
-  </style>
+.cell {
+  border: 2px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.wall { background: #000; }
+.start { background: #ddd; }
+.goal { background: #bbb; }
+
+.options button {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  margin: 10px auto;
+  padding: 12px;
+  font-size: 16px;
+  border: 2px solid #000;
+  background: #fff;
+  cursor: pointer;
+}
+
+.options button:hover {
+  background: #000;
+  color: #fff;
+}
+
+.result {
+  margin-top: 15px;
+  font-size: 18px;
+  font-weight: bold;
+}
+</style>
 </head>
+
 <body>
-  <div id="container">
-    <h2 style="text-align:center; color: var(--itmo-blue)">ИИ или Человек?</h2>
-    <p style="text-align:center;color:#555">Определи, кто создал текст или изображение</p>
 
-    <div id="quiz">
-      <div id="content"></div>
-      <button onclick="selectAnswer('AI')">ИИ</button>
-      <button onclick="selectAnswer('human')">Человек</button>
-    </div>
+<h1>🧭 Найди оптимальный путь</h1>
+<p>Роботу нужно добраться до лаборатории 🧪<br>
+Выбери самый короткий маршрут.</p>
 
-    <p id="feedback"></p>
-    <div id="progressBarContainer"><div id="progressBar"></div></div>
-  </div>
+<div class="map">
+  <div class="cell start">🤖</div>
+  <div class="cell"></div>
+  <div class="cell wall"></div>
+  <div class="cell"></div>
+  <div class="cell"></div>
+
+  <div class="cell wall"></div>
+  <div class="cell"></div>
+  <div class="cell wall"></div>
+  <div class="cell"></div>
+  <div class="cell wall"></div>
+
+  <div class="cell"></div>
+  <div class="cell"></div>
+  <div class="cell"></div>
+  <div class="cell"></div>
+  <div class="cell"></div>
+
+  <div class="cell wall"></div>
+  <div class="cell wall"></div>
+  <div class="cell"></div>
+  <div class="cell wall"></div>
+  <div class="cell"></div>
+
+  <div class="cell"></div>
+  <div class="cell"></div>
+  <div class="cell"></div>
+  <div class="cell"></div>
+  <div class="cell goal">🧪</div>
+</div>
+
+<div class="options">
+  <button onclick="check(false)">⬆️ ➡️ ➡️ ⬇️ ➡️ ⬇️</button>
+  <button onclick="check(true)">➡️ ⬇️ ⬇️ ➡️ ➡️ ⬇️ ➡️</button>
+  <button onclick="check(false)">⬇️ ⬇️ ➡️ ➡️ ⬆️ ➡️</button>
+</div>
+
+<div class="result" id="result"></div>
 
 <script>
-const items = [
-  { type:"text", content:"Кошка прыгает в закате, как процессор в синхронизации потоков.", answer:"AI"},
-  { type:"text", content:"Сегодня утром я опоздал на первую пару, потому что забыл дома пропуск.", answer:"human"},
-  { type:"text", content:"Тишина кампуса была нарушена только шелестом нейросетей в вечернем серверном зале.", answer:"AI"},
-  { type:"text", content:"Когда мы выходили после лабораторной, шел лёгкий снег и пахло кофе из автомата.", answer:"human"},
-
-  { type:"image", content:"https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=800&q=80", answer:"human"},
-  { type:"image", content:"https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80", answer:"human"},
-  { type:"image", content:"https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80", answer:"AI"},
-  { type:"image", content:"https://images.unsplash.com/photo-1504208434309-cb69f4fe52b0?auto=format&fit=crop&w=800&q=80", answer:"AI"},
-
-  { type:"text", content:"Ветер кружил листья так, будто рендерил частички в игровом движке.", answer:"AI"},
-  { type:"image", content:"https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80", answer:"human"},
-  { type:"image", content:"https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=800&q=80", answer:"AI"}
-];
-
-// Рандомизация
-items.sort(() => Math.random() - 0.5);
-
-let current = 0;
-let score = 0;
-let startTime = Date.now();
-
-function showItem(){
-  const item = items[current];
-  const el = document.getElementById("content");
-  if(item.type === 'text') el.innerHTML = `<p style='font-size:20px'>${item.content}</p>`;
-  else el.innerHTML = `<img src='${item.content}' id='quizImage'>`;
+function check(correct) {
+  const res = document.getElementById("result");
+  if (correct) {
+    res.innerHTML = "✅ Верно! Робот выбрал оптимальный маршрут.";
+    res.style.color = "green";
+  } else {
+    res.innerHTML = "❌ Не самый короткий путь. Попробуй ещё!";
+    res.style.color = "red";
+  }
 }
-
-function selectAnswer(choice){
-  if(choice === items[current].answer) score++;
-
-  current++;
-  document.getElementById('progressBar').style.width = (current/items.length*100)+'%';
-
-  setTimeout(()=>{
-    if(current>=items.length) showFinal();
-    else showItem();
-  }, 500);
-}
-
-function showFinal(){
-  const time = Math.round((Date.now()-startTime)/1000);
-  const percent = Math.round((score/items.length)*100);
-
-  const entry = {score:percent, time, date:new Date().toLocaleString()};
-  let records = JSON.parse(localStorage.getItem('itmo_ai_records')||'[]');
-  records.push(entry);
-  records.sort((a,b)=> b.score-a.score || a.time-b.time);
-  records=records.slice(0,5);
-  localStorage.setItem('itmo_ai_records', JSON.stringify(records));
-
-  const table = records.map(r=>`<tr><td>${r.score}%</td><td>${r.time} сек</td><td>${r.date}</td></tr>`).join('');
-
-  document.body.innerHTML = `
-    <div style='min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px;'>
-      <h1>Результат</h1>
-      <p>Вы разобрались в ИИ на <b>${percent}%</b></p>
-      <p>Время прохождения: <b>${time} сек</b></p>
-      <h2>ТОП-5 результатов</h2>
-      <table>${table}</table>
-      <button onclick='location.reload()' style='margin-top:15px; padding:10px 20px;'>Пройти ещё раз</button>
-    </div>`;
-}
-
-showItem();
 </script>
+
 </body>
 </html>
