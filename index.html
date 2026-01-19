@@ -232,6 +232,20 @@ function runAStar(){
     });
   },100);
 }
+function drawPath(parent){
+  let cur=goal;
+  let path=[];
+
+  while(cur){
+    path.push(cur);
+    cur = parent[cur.x+","+cur.y];
+  }
+
+  path.forEach(p=>{
+    g.fillStyle="rgba(0,150,0,0.6)";
+    g.fillRect(p.x*cell,p.y*cell,cell,cell);
+  });
+}
 
 
 /* ===== SIGNAL ===== */
