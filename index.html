@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ты — студент КТУ | ИТМО</title>
+<title>Инженер КТУ — ИТМО</title>
 
 <style>
 :root { --itmo-blue:#0039A6; }
 
 body {
   margin:0;
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
   background:#fff;
   color:#000;
 }
 
 .wrapper {
-  max-width:1100px;
+  max-width:1200px;
   margin:auto;
   text-align:center;
 }
@@ -28,11 +28,11 @@ h1,h2 { color:var(--itmo-blue); }
 
 button {
   padding:12px 18px;
-  margin:8px;
+  margin:6px;
   border:2px solid var(--itmo-blue);
   background:#fff;
   color:var(--itmo-blue);
-  font-size:16px;
+  font-size:15px;
 }
 
 button:active {
@@ -41,12 +41,13 @@ button:active {
 }
 
 canvas {
-  border:1px solid #ccc;
+  border:1px solid #aaa;
   margin:10px auto;
   display:block;
+  touch-action:manipulation;
 }
 
-input[type=range] { width:200px; }
+small { color:#555; }
 </style>
 </head>
 
@@ -61,153 +62,175 @@ input[type=range] { width:200px; }
 <button onclick="next()">Начать</button>
 </div>
 
-<!-- BASIC 1 -->
+<!-- BASIC -->
 <div class="screen">
 <h2>🤖 ИИ или человек?</h2>
-<p>«Кошка прыгает в закате, как поток в многопоточности»</p>
+<p>«Алгоритм думает быстрее, но не понимает смысл»</p>
 <button onclick="next()">ИИ</button>
 <button onclick="next()">Человек</button>
 </div>
 
-<!-- BASIC 2 -->
-<div class="screen">
-<h2>🧭 Найди оптимальный путь</h2>
-<p>Какой маршрут короче для робота?</p>
-<button onclick="next()">Вариант A</button>
-<button onclick="next()">Вариант B</button>
-</div>
-
-<!-- BASIC 3 -->
 <div class="screen">
 <h2>⚙️ Логика управления</h2>
-<p>Если датчик видит препятствие — что должен сделать робот?</p>
+<p>Если датчик увидел препятствие, что делает робот?</p>
 <button onclick="next()">Остановиться</button>
-<button onclick="next()">Ускориться</button>
+<button onclick="next()">Скорректировать путь</button>
 </div>
 
-<!-- BASIC END -->
 <div class="screen">
-<h2>🎓 Ты прошёл BASIC!</h2>
-<p>Хочешь увидеть реальные задачи студентов КТУ?</p>
+<h2>🎓 BASIC пройден</h2>
+<p>Переходим к реальным инженерным задачам</p>
 <button onclick="next()">🔥 Advanced</button>
 </div>
 
-<!-- ADVANCED 1 -->
+<!-- ADVANCED PATH -->
 <div class="screen">
-<h2>🧭 BFS vs A*</h2>
+<h2>🧭 Оптимальный путь робота</h2>
+<p>
+Тапай по клеткам, чтобы добавить стены.<br>
+<small>Синий — поиск, зелёный — маршрут</small>
+</p>
+
 <canvas id="grid" width="360" height="360"></canvas>
+
 <button onclick="runBFS()">BFS</button>
 <button onclick="runAStar()">A*</button>
+<button onclick="resetGrid()">Очистить</button>
 <button onclick="next()">Далее</button>
-</div>
-
-<!-- ADVANCED 2 -->
-<div class="screen">
-<h2>📡 Фильтрация сигнала</h2>
-<canvas id="signal" width="600" height="220"></canvas>
-<button onclick="rawSignal()">Без фильтра</button>
-<button onclick="avgSignal()">Среднее</button>
-<button onclick="medSignal()">Медианный</button>
-<button onclick="next()">Далее</button>
-</div>
-
-<!-- ADVANCED 3 PID -->
-<div class="screen">
-<h2>🧠 PID-регулятор</h2>
-<p>Настрой регулятор, чтобы стабилизировать систему</p>
-
-P <input type="range" min="0" max="2" step="0.1" id="p"><br>
-I <input type="range" min="0" max="1" step="0.05" id="i"><br>
-D <input type="range" min="0" max="1" step="0.05" id="d"><br>
-
-<canvas id="pid" width="600" height="220"></canvas>
-<button onclick="startPID()">Запустить</button>
-<button onclick="next()">Финал</button>
 </div>
 
 <!-- FINAL -->
 <div class="screen">
 <h1>🎓 Ты — студент КТУ</h1>
-<p>Так выглядят реальные задачи управления, алгоритмов и робототехники</p>
+<p>
+Ты попробовал задачи алгоритмов, управления и робототехники.<br>
+Так учатся инженеры в ИТМО.
+</p>
 </div>
 
 </div>
 
 <script>
-let step = 0;
-const screens = document.querySelectorAll(".screen");
-
+/* ===== SCREEN NAV ===== */
+let step=0;
+const screens=document.querySelectorAll(".screen");
 function next(){
   screens[step].classList.remove("active");
   step++;
   screens[step].classList.add("active");
 }
 
-/* ===== BFS / A* ===== */
-const g = document.getElementById("grid").getContext("2d");
+/* ===== GRID SETUP ===== */
+const canvas=document.getElementById("grid");
+const g=canvas.getContext("2d");
 const size=8, cell=45;
-const start={x:0,y:7}, goal={x:7,y:0};
 
-function drawGrid(v=[]){
+const start={x:0,y:7};
+const goal={x:7,y:0};
+let walls=[];
+
+function isWall(x,y){
+  return walls.some(w=>w.x===x&&w.y===y);
+}
+
+function drawGrid(visited=[], path=[]){
   g.clearRect(0,0,360,360);
-  for(let y=0;y<size;y++)
-    for(let x=0;x<size;x++)
+
+  for(let y=0;y<size;y++){
+    for(let x=0;x<size;x++){
       g.strokeRect(x*cell,y*cell,cell,cell);
-  v.forEach(p=>{
-    g.fillStyle="#aac";
+      if(isWall(x,y)){
+        g.fillStyle="#333";
+        g.fillRect(x*cell,y*cell,cell,cell);
+      }
+    }
+  }
+
+  visited.forEach(p=>{
+    g.fillStyle="rgba(0,120,255,0.4)";
     g.fillRect(p.x*cell,p.y*cell,cell,cell);
   });
+
+  path.forEach(p=>{
+    g.fillStyle="rgba(0,180,0,0.6)";
+    g.fillRect(p.x*cell,p.y*cell,cell,cell);
+  });
+
   g.fillStyle="green";
   g.fillRect(start.x*cell,start.y*cell,cell,cell);
+
   g.fillStyle="red";
   g.fillRect(goal.x*cell,goal.y*cell,cell,cell);
 }
+
 drawGrid();
 
+/* ===== CLICK TOGGLE WALL ===== */
+canvas.addEventListener("click",e=>{
+  const rect=canvas.getBoundingClientRect();
+  const x=Math.floor((e.clientX-rect.left)/cell);
+  const y=Math.floor((e.clientY-rect.top)/cell);
+
+  if((x===start.x&&y===start.y)||(x===goal.x&&y===goal.y)) return;
+
+  const i=walls.findIndex(w=>w.x===x&&w.y===y);
+  if(i>=0) walls.splice(i,1);
+  else walls.push({x,y});
+
+  drawGrid();
+});
+
+/* ===== PATHFINDING ===== */
+function neighbors(p){
+  return [[1,0],[-1,0],[0,1],[0,-1]]
+    .map(d=>({x:p.x+d[0],y:p.y+d[1]}))
+    .filter(n=>n.x>=0&&n.y>=0&&n.x<size&&n.y<size&&!isWall(n.x,n.y));
+}
+
+function reconstruct(parent){
+  let cur=goal, path=[];
+  while(cur){
+    path.push(cur);
+    cur=parent[cur.x+","+cur.y];
+  }
+  return path;
+}
+
 function runBFS(){
-  let q=[start];
-  let visited=[];
-  let seen={};
-  let parent={};
+  let q=[start], visited=[], seen={}, parent={};
   seen[start.x+","+start.y]=true;
 
   let t=setInterval(()=>{
     if(!q.length){clearInterval(t);return;}
-
     let v=q.shift();
     visited.push(v);
     drawGrid(visited);
 
-    if(v.x===goal.x && v.y===goal.y){
+    if(v.x===goal.x&&v.y===goal.y){
       clearInterval(t);
-      drawPath(parent);
+      drawGrid(visited,reconstruct(parent));
       return;
     }
 
-    [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
-      let nx=v.x+d[0], ny=v.y+d[1];
-      let key=nx+","+ny;
-      if(nx>=0&&ny>=0&&nx<size&&ny<size&&!seen[key]){
-        seen[key]=true;
-        parent[key]=v;
-        q.push({x:nx,y:ny});
+    neighbors(v).forEach(n=>{
+      let k=n.x+","+n.y;
+      if(!seen[k]){
+        seen[k]=true;
+        parent[k]=v;
+        q.push(n);
       }
     });
   },100);
 }
 
 function runAStar(){
-  let open=[start];
-  let visited=[];
-  let seen={};
-  let parent={};
+  let open=[start], visited=[], seen={}, parent={};
   seen[start.x+","+start.y]=true;
 
   let t=setInterval(()=>{
     if(!open.length){clearInterval(t);return;}
-
     open.sort((a,b)=>
-      Math.abs(a.x-goal.x)+Math.abs(a.y-goal.y) -
+      (Math.abs(a.x-goal.x)+Math.abs(a.y-goal.y))-
       (Math.abs(b.x-goal.x)+Math.abs(b.y-goal.y))
     );
 
@@ -215,111 +238,28 @@ function runAStar(){
     visited.push(v);
     drawGrid(visited);
 
-    if(v.x===goal.x && v.y===goal.y){
+    if(v.x===goal.x&&v.y===goal.y){
       clearInterval(t);
-      drawPath(parent);
+      drawGrid(visited,reconstruct(parent));
       return;
     }
 
-    [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
-      let nx=v.x+d[0], ny=v.y+d[1];
-      let key=nx+","+ny;
-      if(nx>=0&&ny>=0&&nx<size&&ny<size&&!seen[key]){
-        seen[key]=true;
-        parent[key]=v;
-        open.push({x:nx,y:ny});
+    neighbors(v).forEach(n=>{
+      let k=n.x+","+n.y;
+      if(!seen[k]){
+        seen[k]=true;
+        parent[k]=v;
+        open.push(n);
       }
     });
   },100);
 }
-function drawPath(parent){
-  let cur=goal;
-  let path=[];
 
-  while(cur){
-    path.push(cur);
-    cur = parent[cur.x+","+cur.y];
-  }
-
-  path.forEach(p=>{
-    g.fillStyle="rgba(0,150,0,0.6)";
-    g.fillRect(p.x*cell,p.y*cell,cell,cell);
-  });
+function resetGrid(){
+  walls=[];
+  drawGrid();
 }
+</script>
 
-
-/* ===== SIGNAL ===== */
-const s=document.getElementById("signal").getContext("2d");
-let raw=Array.from({length:100},(_,i)=>120+30*Math.sin(i/8)+Math.random()*40);
-
-function drawSig(data){
-  s.clearRect(0,0,600,220);
-  s.beginPath();
-  data.forEach((v,i)=>s.lineTo(i*6,220-v));
-  s.stroke();
-}
-function rawSignal(){ drawSig(raw); }
-function avgSignal(){
-  drawSig(raw.map((_,i)=>{
-    let a=raw.slice(Math.max(0,i-3),i+4);
-    return a.reduce((x,y)=>x+y)/a.length;
-  }));
-}
-function medSignal(){
-  drawSig(raw.map((_,i)=>{
-    let a=raw.slice(Math.max(0,i-3),i+4).sort((a,b)=>a-b);
-    return a[Math.floor(a.length/2)];
-  }));
-}
-rawSignal();
-
-/* ===== PID ===== */
-const c=document.getElementById("pid").getContext("2d");
-
-function startPID(){
-  let P=+p.value, I=+i.value, D=+d.value;
-
-  let y=0, target=110, sum=0, prev=0;
-  let data=[];
-  let maxY=0;
-  let t=setInterval(()=>{
-    let err=target-y;
-    sum+=err;
-    let diff=err-prev;
-    let u=P*err + I*sum + D*diff;
-
-    y+=u*0.1;
-    prev=err;
-    data.push(y);
-    maxY=Math.max(maxY,y);
-
-    c.clearRect(0,0,600,220);
-
-    /* цель */
-    c.strokeStyle="#aaa";
-    c.beginPath();
-    c.moveTo(0,220-target);
-    c.lineTo(600,220-target);
-    c.stroke();
-
-    /* график */
-    c.strokeStyle="#000";
-    c.beginPath();
-    data.forEach((v,i)=>c.lineTo(i*6,220-v));
-    c.stroke();
-
-    /* подписи */
-    c.fillStyle="#000";
-    c.font="14px Arial";
-
-    if(maxY > target*1.3){
-      c.fillText("❌ Перерегулирование", 10, 20);
-    } else if(Math.abs(err) > 30){
-      c.fillText("⚠️ Колебания", 10, 20);
-    } else if(data.length > 40){
-      c.fillText("✅ Стабилизация", 10, 20);
-    }
-
-    if(data.length>100) clearInterval(t);
-  },50);
-}
+</body>
+</html>
