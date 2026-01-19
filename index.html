@@ -27,15 +27,15 @@ body {
   display: block;
 }
 
-h1 {
+h1, h2 {
   color: var(--itmo-blue);
 }
 
 button {
   width: 100%;
   max-width: 320px;
-  padding: 15px;
-  margin: 10px auto;
+  padding: 14px;
+  margin: 8px auto;
   font-size: 16px;
   border: 2px solid var(--itmo-blue);
   background: #fff;
@@ -50,23 +50,24 @@ button:active {
 
 .progress {
   font-size: 14px;
-  margin-bottom: 10px;
   color: #555;
+  margin-bottom: 10px;
 }
 
 svg {
   width: 100%;
   max-width: 320px;
-  margin: 20px auto;
+  margin: 15px auto;
 }
 
 .path {
   stroke: #999;
   stroke-width: 6;
   fill: none;
+  cursor: pointer;
 }
 
-.path.correct {
+.path:hover {
   stroke: var(--itmo-blue);
 }
 
@@ -87,55 +88,86 @@ td, th {
 
 <body>
 
-<!-- Старт -->
+<!-- СТАРТ -->
 <div class="screen active" id="start">
   <h1>Ты — инженер КТУ?</h1>
   <p><b>Мегафакультет Компьютерных технологий и управления</b></p>
-  <button onclick="startGame()">Начать</button>
+  <p>Факультет систем управления и робототехники</p>
+  <button onclick="next()">Начать</button>
 </div>
 
-<!-- Задача 1 -->
+<!-- ЗАДАЧА 1 -->
 <div class="screen" id="q1">
   <div class="progress">Задача 1 из 3</div>
   <h2>🧭 Найди оптимальный путь</h2>
-  <p>Какой маршрут самый короткий?</p>
+
+  <p>
+    Робот 🤖 движется по кампусу ИТМО к лаборатории 🧪.<br>
+    <b>Нажми на самый короткий маршрут.</b>
+  </p>
 
   <svg viewBox="0 0 200 200">
-    <circle cx="30" cy="170" r="10" fill="black"/>
-    <text x="10" y="190" font-size="12">🤖</text>
+    <text x="10" y="185">🤖</text>
+    <text x="155" y="20">🧪</text>
 
-    <circle cx="170" cy="30" r="10" fill="black"/>
-    <text x="155" y="20" font-size="12">🧪</text>
+    <!-- A -->
+    <path d="M30 170 L170 30" class="path"
+          onclick="answer(true,this)"/>
+    <text x="90" y="90">A</text>
 
-    <path d="M30 170 L170 30" class="path correct" onclick="answer(true,this)"/>
-    <path d="M30 170 L30 30 L170 30" class="path" onclick="answer(false,this)"/>
-    <path d="M30 170 L170 170 L170 30" class="path" onclick="answer(false,this)"/>
+    <!-- B -->
+    <path d="M30 170 L30 30 L170 30" class="path"
+          onclick="answer(false,this)"/>
+    <text x="20" y="80">B</text>
+
+    <!-- C -->
+    <path d="M30 170 L170 170 L170 30" class="path"
+          onclick="answer(false,this)"/>
+    <text x="90" y="165">C</text>
   </svg>
+
+  <p style="font-size:14px;color:#555;">
+    Каждый маршрут — вариант ответа
+  </p>
 </div>
 
-<!-- Задача 2 -->
+<!-- ЗАДАЧА 2 -->
 <div class="screen" id="q2">
   <div class="progress">Задача 2 из 3</div>
   <h2>🧠 Умный сенсор</h2>
-  <p>Когда робот должен остановиться?</p>
+
+  <p>
+    Робот движется по коридору и использует<br>
+    <b>ультразвуковой датчик расстояния</b>.<br><br>
+    Если впереди препятствие ближе 30 см —
+    робот должен остановиться.
+  </p>
+
+  <p><b>При каком условии он остановится?</b></p>
 
   <button onclick="answer(false)">если расстояние &gt; 30 см</button>
   <button onclick="answer(true)">если расстояние &lt; 30 см</button>
   <button onclick="answer(false)">если расстояние = 100 см</button>
 </div>
 
-<!-- Задача 3 -->
+<!-- ЗАДАЧА 3 -->
 <div class="screen" id="q3">
   <div class="progress">Задача 3 из 3</div>
   <h2>🤖 Человек или алгоритм?</h2>
-  <p>Кто лучше распределит 200 студентов?</p>
+
+  <p>
+    Нужно распределить 200 студентов по аудиториям<br>
+    с ограничениями по вместимости.
+  </p>
+
+  <p><b>Кто справится эффективнее?</b></p>
 
   <button onclick="answer(false)">Человек</button>
   <button onclick="answer(true)">Алгоритм оптимизации</button>
-  <button onclick="answer(false)">Случайно</button>
+  <button onclick="answer(false)">Случайный выбор</button>
 </div>
 
-<!-- Финал -->
+<!-- ФИНАЛ -->
 <div class="screen" id="finish">
   <h1 id="resultTitle"></h1>
   <p id="resultText"></p>
@@ -143,7 +175,7 @@ td, th {
   <h3>🏆 Таблица рекордов</h3>
   <table id="scores"></table>
 
-  <p style="margin-top:10px;font-size:14px;">
+  <p style="font-size:14px;">
     Прошли интерактив: <span id="analytics"></span>
   </p>
 </div>
@@ -155,8 +187,8 @@ let completed = Number(localStorage.getItem("completed") || 0);
 
 const screens = ["start","q1","q2","q3","finish"];
 
-function startGame() {
-  show(1);
+function next() {
+  show(step + 1);
 }
 
 function show(n) {
@@ -166,11 +198,12 @@ function show(n) {
 }
 
 function answer(correct, el) {
-  if (el) el.classList.add("correct");
   if (correct) score++;
+  if (el) el.style.stroke = "#0039A6";
+
   setTimeout(() => {
-    if (step < 4) show(step + 1);
-    if (step === 3) finish();
+    if (step < 3) show(step + 1);
+    else finish();
   }, 400);
 }
 
@@ -183,7 +216,7 @@ function finish() {
 
   if (score === 3) {
     title.innerText = "🎓 Ты — студент КТУ!";
-    text.innerText = "Ты мыслишь как инженер будущего.";
+    text.innerText = "Ты уже мыслишь как инженер.";
   } else if (score === 2) {
     title.innerText = "🚀 Отличный старт!";
     text.innerText = "Тебе точно сюда.";
@@ -195,6 +228,7 @@ function finish() {
   saveScore();
   showScores();
   document.getElementById("analytics").innerText = completed;
+  show(4);
 }
 
 function saveScore() {
@@ -207,6 +241,7 @@ function saveScore() {
 function showScores() {
   const table = document.getElementById("scores");
   const list = JSON.parse(localStorage.getItem("scores") || "[]");
+
   table.innerHTML = "<tr><th>Баллы</th><th>Дата</th></tr>";
   list.reverse().forEach(r => {
     table.innerHTML += `<tr><td>${r.score}/3</td><td>${r.date}</td></tr>`;
