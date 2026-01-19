@@ -3,122 +3,131 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Найди оптимальный путь</title>
+<title>Ты — инженер КТУ?</title>
 
 <style>
 body {
+  margin: 0;
   font-family: Arial, sans-serif;
   background: #fff;
   color: #000;
   text-align: center;
+}
+
+.screen {
+  display: none;
   padding: 20px;
 }
 
-h1 {
-  font-size: 22px;
-}
-
-.map {
-  display: grid;
-  grid-template-columns: repeat(5, 50px);
-  grid-template-rows: repeat(5, 50px);
-  gap: 4px;
-  justify-content: center;
-  margin: 20px 0;
-}
-
-.cell {
-  border: 2px solid #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-}
-
-.wall { background: #000; }
-.start { background: #ddd; }
-.goal { background: #bbb; }
-
-.options button {
+.active {
   display: block;
+}
+
+h1, h2 {
+  margin-bottom: 10px;
+}
+
+button {
   width: 100%;
-  max-width: 300px;
+  max-width: 320px;
+  padding: 15px;
   margin: 10px auto;
-  padding: 12px;
   font-size: 16px;
   border: 2px solid #000;
   background: #fff;
   cursor: pointer;
 }
 
-.options button:hover {
+button:active {
   background: #000;
   color: #fff;
 }
 
-.result {
-  margin-top: 15px;
-  font-size: 18px;
-  font-weight: bold;
+.progress {
+  margin: 10px 0;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🧭 Найди оптимальный путь</h1>
-<p>Роботу нужно добраться до лаборатории 🧪<br>
-Выбери самый короткий маршрут.</p>
-
-<div class="map">
-  <div class="cell start">🤖</div>
-  <div class="cell"></div>
-  <div class="cell wall"></div>
-  <div class="cell"></div>
-  <div class="cell"></div>
-
-  <div class="cell wall"></div>
-  <div class="cell"></div>
-  <div class="cell wall"></div>
-  <div class="cell"></div>
-  <div class="cell wall"></div>
-
-  <div class="cell"></div>
-  <div class="cell"></div>
-  <div class="cell"></div>
-  <div class="cell"></div>
-  <div class="cell"></div>
-
-  <div class="cell wall"></div>
-  <div class="cell wall"></div>
-  <div class="cell"></div>
-  <div class="cell wall"></div>
-  <div class="cell"></div>
-
-  <div class="cell"></div>
-  <div class="cell"></div>
-  <div class="cell"></div>
-  <div class="cell"></div>
-  <div class="cell goal">🧪</div>
+<!-- Старт -->
+<div class="screen active" id="start">
+  <h1>Ты — инженер КТУ?</h1>
+  <p>Мегафакультет Компьютерных технологий и управления</p>
+  <button onclick="next()">Начать</button>
 </div>
 
-<div class="options">
-  <button onclick="check(false)">⬆️ ➡️ ➡️ ⬇️ ➡️ ⬇️</button>
-  <button onclick="check(true)">➡️ ⬇️ ⬇️ ➡️ ➡️ ⬇️ ➡️</button>
-  <button onclick="check(false)">⬇️ ⬇️ ➡️ ➡️ ⬆️ ➡️</button>
+<!-- Задача 1 -->
+<div class="screen" id="q1">
+  <div class="progress">Задача 1 из 3</div>
+  <h2>🧭 Найди оптимальный путь</h2>
+  <p>Какой маршрут самый короткий?</p>
+
+  <button onclick="answer(true)">Маршрут A</button>
+  <button onclick="answer(false)">Маршрут B</button>
+  <button onclick="answer(false)">Маршрут C</button>
 </div>
 
-<div class="result" id="result"></div>
+<!-- Задача 2 -->
+<div class="screen" id="q2">
+  <div class="progress">Задача 2 из 3</div>
+  <h2>🧠 Умный сенсор</h2>
+  <p>Когда робот должен остановиться?</p>
+
+  <button onclick="answer(false)">если расстояние &gt; 30 см</button>
+  <button onclick="answer(true)">если расстояние &lt; 30 см</button>
+  <button onclick="answer(false)">если расстояние = 100 см</button>
+</div>
+
+<!-- Задача 3 -->
+<div class="screen" id="q3">
+  <div class="progress">Задача 3 из 3</div>
+  <h2>🤖 Человек или алгоритм?</h2>
+  <p>Кто лучше распределит 200 студентов?</p>
+
+  <button onclick="answer(false)">Человек</button>
+  <button onclick="answer(true)">Алгоритм оптимизации</button>
+  <button onclick="answer(false)">Случайно</button>
+</div>
+
+<!-- Финал -->
+<div class="screen" id="finish">
+  <h1 id="resultTitle"></h1>
+  <p id="resultText"></p>
+  <p><strong>Факультет систем управления и робототехники</strong></p>
+</div>
 
 <script>
-function check(correct) {
-  const res = document.getElementById("result");
-  if (correct) {
-    res.innerHTML = "✅ Верно! Робот выбрал оптимальный маршрут.";
-    res.style.color = "green";
+let step = 0;
+let score = 0;
+const screens = ["start", "q1", "q2", "q3", "finish"];
+
+function next() {
+  document.getElementById(screens[step]).classList.remove("active");
+  step++;
+  document.getElementById(screens[step]).classList.add("active");
+}
+
+function answer(correct) {
+  if (correct) score++;
+  next();
+  if (step === 4) showResult();
+}
+
+function showResult() {
+  const title = document.getElementById("resultTitle");
+  const text = document.getElementById("resultText");
+
+  if (score === 3) {
+    title.innerText = "🎓 Ты — студент КТУ!";
+    text.innerText = "Ты мыслишь как инженер будущего.";
+  } else if (score === 2) {
+    title.innerText = "🚀 Отличный старт!";
+    text.innerText = "Тебе точно сюда.";
   } else {
-    res.innerHTML = "❌ Не самый короткий путь. Попробуй ещё!";
-    res.style.color = "red";
+    title.innerText = "👋 Добро пожаловать!";
+    text.innerText = "Всему научим на КТУ.";
   }
 }
 </script>
