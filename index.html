@@ -121,7 +121,6 @@ small { color:#555; }
 <button onclick="resetGrid()">Очистить карту</button>
 <button onclick="next()">Далее</button>
 </div>
-
 <!-- FINAL -->
 <div class="screen">
 <h1>🎓 Ты — студент КТУ</h1>
@@ -141,6 +140,55 @@ function next(){
   screens[step].classList.remove("active");
   step++;
   screens[step].classList.add("active");
+}
+/* ===== PID ===== */
+const c=document.getElementById("pid").getContext("2d");
+function startPID(){
+  let P=+p.value, I=+i.value, D=+d.value;
+
+  let y=0, target=110, sum=0, prev=0;
+  let data=[];
+  let maxY=0;
+  let t=setInterval(()=>{
+    let err=target-y;
+    sum+=err;
+    let diff=err-prev;
+    let u=P*err + I*sum + D*diff;
+
+    y+=u*0.1;
+    prev=err;
+    data.push(y);
+    maxY=Math.max(maxY,y);
+
+    c.clearRect(0,0,600,220);
+
+    /* цель */
+    c.strokeStyle="#aaa";
+    c.beginPath();
+    c.moveTo(0,220-target);
+    c.lineTo(600,220-target);
+    c.stroke();
+
+    /* график */
+    c.strokeStyle="#000";
+    c.beginPath();
+    data.forEach((v,i)=>c.lineTo(i*6,220-v));
+    c.stroke();
+
+    /* подписи */
+    c.fillStyle="#000";
+    c.font="14px Arial";
+
+    if(maxY > target*1.3){
+      c.fillText("❌ Перерегулирование", 10, 20);
+    } else if(Math.abs(err) > 30){
+      c.fillText("⚠️ Колебания", 10, 20);
+    } else if(data.length > 40){
+      c.fillText("✅ Стабилизация", 10, 20);
+    }
+
+    if(data.length>100) clearInterval(t);
+  },50);
 }
 
 /* ===== ПОДСКАЗКА ===== */
