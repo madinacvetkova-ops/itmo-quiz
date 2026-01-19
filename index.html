@@ -47,6 +47,17 @@ canvas {
   touch-action:manipulation;
 }
 
+.hint {
+  display:none;
+  border:1px dashed var(--itmo-blue);
+  padding:12px;
+  margin:12px auto;
+  max-width:500px;
+  text-align:left;
+  font-size:14px;
+  background:#f9fbff;
+}
+
 small { color:#555; }
 </style>
 </head>
@@ -62,7 +73,7 @@ small { color:#555; }
 <button onclick="next()">Начать</button>
 </div>
 
-<!-- BASIC -->
+<!-- BASIC 1 -->
 <div class="screen">
 <h2>🤖 ИИ или человек?</h2>
 <p>«Алгоритм думает быстрее, но не понимает смысл»</p>
@@ -70,32 +81,44 @@ small { color:#555; }
 <button onclick="next()">Человек</button>
 </div>
 
+<!-- BASIC 2 -->
 <div class="screen">
 <h2>⚙️ Логика управления</h2>
-<p>Если датчик увидел препятствие, что делает робот?</p>
+<p>Если датчик увидел препятствие, что должен сделать робот?</p>
 <button onclick="next()">Остановиться</button>
 <button onclick="next()">Скорректировать путь</button>
 </div>
 
+<!-- BASIC END -->
 <div class="screen">
 <h2>🎓 BASIC пройден</h2>
-<p>Переходим к реальным инженерным задачам</p>
+<p>Теперь — реальная инженерная задача</p>
 <button onclick="next()">🔥 Advanced</button>
 </div>
 
 <!-- ADVANCED PATH -->
 <div class="screen">
 <h2>🧭 Оптимальный путь робота</h2>
+
+<button onclick="toggleHint()">❓ Подсказка</button>
+
+<div class="hint" id="hint">
+💡 <b>Что здесь происходит</b><br><br>
+— Нажми на клетку, чтобы <b>поставить стену</b><br>
+— Нажми ещё раз, чтобы <b>убрать её</b><br><br>
+После этого запусти BFS или A* и посмотри:<br>
+<b>как алгоритм ищет путь в разных условиях</b>.
+</div>
+
 <p>
-Тапай по клеткам, чтобы добавить стены.<br>
-<small>Синий — поиск, зелёный — маршрут</small>
+<small>Синий — поиск алгоритма, зелёный — итоговый маршрут</small>
 </p>
 
 <canvas id="grid" width="360" height="360"></canvas>
 
 <button onclick="runBFS()">BFS</button>
 <button onclick="runAStar()">A*</button>
-<button onclick="resetGrid()">Очистить</button>
+<button onclick="resetGrid()">Очистить карту</button>
 <button onclick="next()">Далее</button>
 </div>
 
@@ -103,7 +126,7 @@ small { color:#555; }
 <div class="screen">
 <h1>🎓 Ты — студент КТУ</h1>
 <p>
-Ты попробовал задачи алгоритмов, управления и робототехники.<br>
+Ты попробовал задачи алгоритмов и управления.<br>
 Так учатся инженеры в ИТМО.
 </p>
 </div>
@@ -111,7 +134,7 @@ small { color:#555; }
 </div>
 
 <script>
-/* ===== SCREEN NAV ===== */
+/* ===== НАВИГАЦИЯ ===== */
 let step=0;
 const screens=document.querySelectorAll(".screen");
 function next(){
@@ -120,7 +143,13 @@ function next(){
   screens[step].classList.add("active");
 }
 
-/* ===== GRID SETUP ===== */
+/* ===== ПОДСКАЗКА ===== */
+function toggleHint(){
+  const h=document.getElementById("hint");
+  h.style.display = h.style.display==="none" ? "block" : "none";
+}
+
+/* ===== СЕТКА ===== */
 const canvas=document.getElementById("grid");
 const g=canvas.getContext("2d");
 const size=8, cell=45;
@@ -158,14 +187,13 @@ function drawGrid(visited=[], path=[]){
 
   g.fillStyle="green";
   g.fillRect(start.x*cell,start.y*cell,cell,cell);
-
   g.fillStyle="red";
   g.fillRect(goal.x*cell,goal.y*cell,cell,cell);
 }
 
 drawGrid();
 
-/* ===== CLICK TOGGLE WALL ===== */
+/* ===== ТАП ПО КАРТЕ ===== */
 canvas.addEventListener("click",e=>{
   const rect=canvas.getBoundingClientRect();
   const x=Math.floor((e.clientX-rect.left)/cell);
@@ -180,7 +208,7 @@ canvas.addEventListener("click",e=>{
   drawGrid();
 });
 
-/* ===== PATHFINDING ===== */
+/* ===== ПОИСК ПУТИ ===== */
 function neighbors(p){
   return [[1,0],[-1,0],[0,1],[0,-1]]
     .map(d=>({x:p.x+d[0],y:p.y+d[1]}))
