@@ -6,89 +6,47 @@
 <title>Ты — инженер КТУ?</title>
 
 <style>
-:root {
-  --itmo-blue: #0039A6;
-}
+:root { --itmo-blue:#0039A6; }
 
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #fff;
-  color: #000;
-  text-align: center;
+  margin:0; font-family:Arial,sans-serif;
+  background:#fff; color:#000; text-align:center;
 }
 
-.screen {
-  display: none;
-  padding: 20px;
-}
+.screen { display:none; padding:20px; }
+.active { display:block; }
 
-.active {
-  display: block;
-}
-
-h1, h2 {
-  color: var(--itmo-blue);
-}
+h1,h2 { color:var(--itmo-blue); }
 
 button {
-  width: 100%;
-  max-width: 320px;
-  padding: 14px;
-  margin: 8px auto;
-  font-size: 16px;
-  border: 2px solid var(--itmo-blue);
-  background: #fff;
-  color: var(--itmo-blue);
-  cursor: pointer;
+  width:100%; max-width:320px;
+  padding:14px; margin:8px auto;
+  font-size:16px;
+  border:2px solid var(--itmo-blue);
+  background:#fff; color:var(--itmo-blue);
 }
 
-button:active {
-  background: var(--itmo-blue);
-  color: #fff;
-}
+button:active { background:var(--itmo-blue); color:#fff; }
 
-.progress {
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 10px;
-}
+.progress { font-size:14px; color:#555; margin-bottom:10px; }
 
-svg {
-  width: 100%;
-  max-width: 320px;
-  margin: 15px auto;
-}
+svg { width:100%; max-width:320px; margin:15px auto; }
 
-.path {
-  stroke: #999;
-  stroke-width: 6;
-  fill: none;
-  cursor: pointer;
-}
-
-.path:hover {
-  stroke: var(--itmo-blue);
-}
+.path { stroke:#999; stroke-width:6; fill:none; cursor:pointer; }
+.path:hover { stroke:var(--itmo-blue); }
 
 table {
-  width: 100%;
-  max-width: 320px;
-  margin: 10px auto;
-  border-collapse: collapse;
+  width:100%; max-width:320px;
+  margin:10px auto; border-collapse:collapse;
 }
 
-td, th {
-  border: 1px solid #ccc;
-  padding: 6px;
-  font-size: 14px;
-}
+td,th { border:1px solid #ccc; padding:6px; font-size:14px; }
 </style>
 </head>
 
 <body>
 
-<!-- СТАРТ -->
+<!-- START -->
 <div class="screen active" id="start">
   <h1>Ты — инженер КТУ?</h1>
   <p><b>Мегафакультет Компьютерных технологий и управления</b></p>
@@ -96,170 +54,140 @@ td, th {
   <button onclick="next()">Начать</button>
 </div>
 
-<!-- ЗАДАЧА 1 -->
+<!-- Q1 -->
 <div class="screen" id="q1">
-  <div class="progress">Задача 1 из 3</div>
-  <h2>🧭 Найди оптимальный путь</h2>
+<div class="progress">Задача 1 из 5</div>
+<h2>🧭 Найди оптимальный путь</h2>
+<p><b>Нажми на самый короткий маршрут.</b></p>
 
-  <p>
-    Робот 🤖 едет по кампусу ИТМО к лаборатории 🧪.<br>
-    <b>Нажми на самый короткий маршрут.</b>
-  </p>
+<svg viewBox="0 0 200 200">
+<text x="10" y="185">🤖</text>
+<text x="155" y="20">🧪</text>
 
-  <svg viewBox="0 0 200 200">
-    <!-- старт и цель -->
-    <text x="5" y="190">🤖</text>
-    <text x="155" y="20">🧪</text>
+<path d="M30 170 L170 30" class="path" onclick="answer(true,this)"/>
+<text x="90" y="90">A</text>
 
-    <!-- Маршрут A (правильный) -->
-    <path d="M30 170 L170 30"
-          class="path"
-          onclick="answer(true,this)"/>
-    <text x="90" y="90" font-size="12">A</text>
+<path d="M30 170 L30 30 L170 30" class="path" onclick="answer(false,this)"/>
+<text x="20" y="80">B</text>
 
-    <!-- Маршрут B -->
-    <path d="M30 170 L30 30 L170 30"
-          class="path"
-          onclick="answer(false,this)"/>
-    <text x="20" y="80" font-size="12">B</text>
-
-    <!-- Маршрут C -->
-    <path d="M30 170 L170 170 L170 30"
-          class="path"
-          onclick="answer(false,this)"/>
-    <text x="90" y="165" font-size="12">C</text>
-  </svg>
-
-  <p style="font-size:14px;color:#555;">
-    Каждый маршрут — это вариант ответа
-  </p>
+<path d="M30 170 L170 170 L170 30" class="path" onclick="answer(false,this)"/>
+<text x="90" y="165">C</text>
+</svg>
 </div>
 
-
-<!-- ЗАДАЧА 2 -->
+<!-- Q2 -->
 <div class="screen" id="q2">
-  <div class="progress">Задача 2 из 3</div>
-  <h2>🧠 Умный сенсор</h2>
-
-  <p>
-    Робот движется по коридору и использует<br>
-    <b>ультразвуковой датчик расстояния</b>.<br><br>
-    Если впереди препятствие ближе 30 см —
-    робот должен остановиться.
-  </p>
-
-  <p><b>При каком условии он остановится?</b></p>
-
-  <button onclick="answer(false)">
-    если расстояние &gt; 30 см
-  </button>
-
-  <button onclick="answer(true)">
-    если расстояние &lt; 30 см
-  </button>
-
-  <button onclick="answer(false)">
-    если расстояние = 100 см
-  </button>
+<div class="progress">Задача 2 из 5</div>
+<h2>🧠 Умный сенсор</h2>
+<p>Если препятствие ближе 30 см — робот должен остановиться.</p>
+<button onclick="answer(false)">расстояние &gt; 30 см</button>
+<button onclick="answer(true)">расстояние &lt; 30 см</button>
+<button onclick="answer(false)">расстояние = 100 см</button>
 </div>
 
-
-<!-- ЗАДАЧА 3 -->
+<!-- Q3 -->
 <div class="screen" id="q3">
-  <div class="progress">Задача 3 из 3</div>
-  <h2>🤖 Человек или алгоритм?</h2>
-
-  <p>
-    Нужно распределить 200 студентов по аудиториям<br>
-    с ограничениями по вместимости.
-  </p>
-
-  <p><b>Кто справится эффективнее?</b></p>
-
-  <button onclick="answer(false)">Человек</button>
-  <button onclick="answer(true)">Алгоритм оптимизации</button>
-  <button onclick="answer(false)">Случайный выбор</button>
+<div class="progress">Задача 3 из 5</div>
+<h2>🤖 Человек или алгоритм?</h2>
+<p>Кто эффективнее распределит 200 студентов по аудиториям?</p>
+<button onclick="answer(false)">Человек</button>
+<button onclick="answer(true)">Алгоритм оптимизации</button>
+<button onclick="answer(false)">Случайно</button>
 </div>
 
-<!-- ФИНАЛ -->
+<!-- Q4 -->
+<div class="screen" id="q4">
+<div class="progress">Задача 4 из 5</div>
+<h2>🧮 Логика управления</h2>
+<p>Если температура мотора &gt; 80 °C — робот снижает скорость.</p>
+<p><b>При каком значении он снизит скорость?</b></p>
+<button onclick="answer(false)">75 °C</button>
+<button onclick="answer(true)">85 °C</button>
+<button onclick="answer(false)">60 °C</button>
+</div>
+
+<!-- Q5 -->
+<div class="screen" id="q5">
+<div class="progress">Задача 5 из 5</div>
+<h2>📡 Сигнал и шум</h2>
+<p>Как сгладить шум сенсора без искажения сигнала?</p>
+<button onclick="answer(true)">Скользящее среднее</button>
+<button onclick="answer(false)">Случайный шум</button>
+<button onclick="answer(false)">Усиление сигнала</button>
+</div>
+
+<!-- FINISH -->
 <div class="screen" id="finish">
-  <h1 id="resultTitle"></h1>
-  <p id="resultText"></p>
+<h1 id="resultTitle"></h1>
+<p id="resultText"></p>
 
-  <h3>🏆 Таблица рекордов</h3>
-  <table id="scores"></table>
+<h3>🏆 Таблица рекордов</h3>
+<table id="scores"></table>
 
-  <p style="font-size:14px;">
-    Прошли интерактив: <span id="analytics"></span>
-  </p>
+<p style="font-size:14px;">
+Прошли интерактив: <span id="analytics"></span>
+</p>
 </div>
 
 <script>
-let step = 0;
-let score = 0;
-let completed = Number(localStorage.getItem("completed") || 0);
+let step=0, score=0;
+let completed=Number(localStorage.getItem("completed")||0);
+const screens=["start","q1","q2","q3","q4","q5","finish"];
 
-const screens = ["start","q1","q2","q3","finish"];
+function next(){ show(step+1); }
 
-function next() {
-  show(step + 1);
+function show(n){
+document.getElementById(screens[step]).classList.remove("active");
+step=n;
+document.getElementById(screens[step]).classList.add("active");
 }
 
-function show(n) {
-  document.getElementById(screens[step]).classList.remove("active");
-  step = n;
-  document.getElementById(screens[step]).classList.add("active");
+function answer(correct,el){
+if(correct) score++;
+if(el) el.style.stroke="#0039A6";
+setTimeout(()=>{
+if(step<5) show(step+1);
+else finish();
+},400);
 }
 
-function answer(correct, el) {
-  if (correct) score++;
-  if (el) el.style.stroke = "#0039A6";
+function finish(){
+completed++;
+localStorage.setItem("completed",completed);
 
-  setTimeout(() => {
-    if (step < 3) show(step + 1);
-    else finish();
-  }, 400);
+const title=document.getElementById("resultTitle");
+const text=document.getElementById("resultText");
+
+if(score>=4){
+title.innerText="🎓 Ты — студент КТУ!";
+text.innerText="Ты уверенно справился с инженерными задачами.";
+}else if(score>=2){
+title.innerText="🚀 Отличный потенциал!";
+text.innerText="Тебе точно к нам.";
+}else{
+title.innerText="👋 Добро пожаловать!";
+text.innerText="Всему научим на КТУ.";
 }
 
-function finish() {
-  completed++;
-  localStorage.setItem("completed", completed);
-
-  const title = document.getElementById("resultTitle");
-  const text = document.getElementById("resultText");
-
-  if (score === 3) {
-    title.innerText = "🎓 Ты — студент КТУ!";
-    text.innerText = "Ты уже мыслишь как инженер.";
-  } else if (score === 2) {
-    title.innerText = "🚀 Отличный старт!";
-    text.innerText = "Тебе точно сюда.";
-  } else {
-    title.innerText = "👋 Добро пожаловать!";
-    text.innerText = "Всему научим на КТУ.";
-  }
-
-  saveScore();
-  showScores();
-  document.getElementById("analytics").innerText = completed;
-  show(4);
+saveScore(); showScores();
+document.getElementById("analytics").innerText=completed;
+show(6);
 }
 
-function saveScore() {
-  let list = JSON.parse(localStorage.getItem("scores") || "[]");
-  list.push({score, date: new Date().toLocaleDateString()});
-  list = list.slice(-5);
-  localStorage.setItem("scores", JSON.stringify(list));
+function saveScore(){
+let list=JSON.parse(localStorage.getItem("scores")||"[]");
+list.push({score, date:new Date().toLocaleDateString()});
+list=list.slice(-5);
+localStorage.setItem("scores",JSON.stringify(list));
 }
 
-function showScores() {
-  const table = document.getElementById("scores");
-  const list = JSON.parse(localStorage.getItem("scores") || "[]");
-
-  table.innerHTML = "<tr><th>Баллы</th><th>Дата</th></tr>";
-  list.reverse().forEach(r => {
-    table.innerHTML += `<tr><td>${r.score}/3</td><td>${r.date}</td></tr>`;
-  });
+function showScores(){
+const table=document.getElementById("scores");
+const list=JSON.parse(localStorage.getItem("scores")||"[]");
+table.innerHTML="<tr><th>Баллы</th><th>Дата</th></tr>";
+list.reverse().forEach(r=>{
+table.innerHTML+=`<tr><td>${r.score}/5</td><td>${r.date}</td></tr>`;
+});
 }
 </script>
 
